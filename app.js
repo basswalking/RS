@@ -533,7 +533,7 @@ function updateSummary() {
   const label = diff >= 0 ? "more ON" : "more OFF";
   els.verdictMain.textContent = `${label} (${diff.toFixed(1)})`;
   els.verdictMain.style.color = diff >= 0 ? "#00ff21" : "#ff1515";
-  els.verdictSub.textContent = diff >= 0 ? "no myopia" : "myopia";
+  els.verdictSub.textContent = diff >= 0 ? "no myopia" : "stimulates myopia";
   els.verdictSub.style.background = diff >= 0 ? "#008300" : "#b60000";
 }
 
