@@ -1,7 +1,9 @@
 param(
   [string]$DeviceName = "",
   [string]$VideoSize = "640x480",
+  [string]$InputPixelFormat = "gray",
   [string]$OutputDir = "..\captures",
+  [string]$FFmpegPath = "ffmpeg",
   [switch]$ListDevices,
   [switch]$ListOptions
 )
@@ -9,10 +11,12 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Require-FFmpeg {
-  $cmd = Get-Command ffmpeg -ErrorAction SilentlyContinue
+  $cmd = Get-Command $FFmpegPath -ErrorAction SilentlyContinue
   if (-not $cmd) {
-    throw "ffmpeg.exe was not found in PATH. Install FFmpeg first, then reopen PowerShell."
+    throw "ffmpeg.exe was not found. Install FFmpeg or pass -FFmpegPath with the full path to ffmpeg.exe."
   }
+
+  return $cmd.Source
 }
 
 function Resolve-OutputPath {
@@ -25,10 +29,10 @@ function Resolve-OutputPath {
   return Join-Path $PSScriptRoot $Path
 }
 
-Require-FFmpeg
+$ffmpeg = Require-FFmpeg
 
 if ($ListDevices) {
-  ffmpeg -hide_banner -f dshow -list_devices true -i dummy
+  & $ffmpeg -hide_banner -f dshow -list_devices true -i dummy
   exit $LASTEXITCODE
 }
 
@@ -37,7 +41,7 @@ if ([string]::IsNullOrWhiteSpace($DeviceName)) {
 }
 
 if ($ListOptions) {
-  ffmpeg -hide_banner -f dshow -list_options true -i "video=$DeviceName"
+  & $ffmpeg -hide_banner -f dshow -list_options true -i "video=$DeviceName"
   exit $LASTEXITCODE
 }
 
@@ -55,11 +59,11 @@ if (Test-Path $pngPath) {
   Remove-Item -LiteralPath $pngPath -Force
 }
 
-ffmpeg `
+& $ffmpeg `
   -hide_banner `
   -f dshow `
   -video_size $VideoSize `
-  -pixel_format gray `
+  -pixel_format $InputPixelFormat `
   -i "video=$DeviceName" `
   -frames:v 1 `
   -f rawvideo `
@@ -75,13 +79,14 @@ if ($rawBytes -ne 307200) {
   throw "Unexpected raw frame size: $rawBytes bytes. Expected 307200 bytes for 640x480 Y800."
 }
 
-ffmpeg `
+& $ffmpeg `
   -hide_banner `
   -f rawvideo `
   -pixel_format gray `
   -video_size $VideoSize `
   -i $rawPath `
   -frames:v 1 `
+  -update true `
   $pngPath
 
 if ($LASTEXITCODE -ne 0) {

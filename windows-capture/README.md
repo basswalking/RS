@@ -36,6 +36,14 @@ Capture one raw Y800 frame and a PNG preview:
 .\capture-y800.ps1 -DeviceName "HP True Vision FHD Camera"
 ```
 
+If the camera does not expose `gray` / `Y800`, use the closest uncompressed format shown by `-ListOptions`. For example, many laptop cameras expose `yuyv422`:
+
+```powershell
+.\capture-y800.ps1 -DeviceName "HP True Vision FHD Camera" -InputPixelFormat yuyv422
+```
+
+This still writes an 8-bit gray raw file for the analyzer; FFmpeg extracts the luminance channel during conversion.
+
 Outputs are written to `captures\` by default:
 
 ```text
