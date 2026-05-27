@@ -1,0 +1,13 @@
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Local capture outputs.
+captures/
+*.raw
+*.bmp
+
+# Build output.
+bin/
+obj/

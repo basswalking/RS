@@ -1,0 +1,292 @@
+:root {
+  color-scheme: dark;
+  --bg: #000;
+  --white: #f5f5f5;
+  --red: #ff1515;
+  --green: #00ff21;
+  --blue: #001dff;
+  --gold: #ffc04d;
+  --muted: #9a9a9a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family: "Courier New", Courier, monospace;
+  overflow: hidden;
+}
+
+.analyzer {
+  width: 1920px;
+  height: 944px;
+  display: grid;
+  grid-template-columns: 640px 1fr;
+  border: 2px solid var(--white);
+  background: #000;
+  transform-origin: top left;
+}
+
+.left-pane {
+  border-right: 2px solid var(--white);
+  display: grid;
+  grid-template-rows: 482px 1fr;
+  min-height: 0;
+}
+
+.video-panel,
+.map-panel,
+.right-pane {
+  position: relative;
+  background: #000;
+  min-height: 0;
+}
+
+.video-panel {
+  border-bottom: 2px solid var(--gold);
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+#cameraVideo {
+  display: none;
+}
+
+#sourceCanvas,
+#responseCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.hud,
+.map-title,
+.map-footer {
+  position: absolute;
+  z-index: 2;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.12;
+  text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+
+.top-left {
+  top: 4px;
+  left: 10px;
+}
+
+.top-right {
+  top: 4px;
+  right: 22px;
+}
+
+.bottom-left {
+  left: 10px;
+  bottom: 5px;
+}
+
+.file-button,
+.camera-button {
+  position: absolute;
+  bottom: 3px;
+  z-index: 3;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--white);
+  background: var(--white);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.file-button {
+  left: 250px;
+  width: 160px;
+}
+
+.camera-button {
+  left: 416px;
+  width: 112px;
+  padding: 0;
+}
+
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.map-panel {
+  border-top: 2px solid #222;
+  padding: 8px 18px 8px 20px;
+}
+
+.map-title {
+  top: 8px;
+  left: 44px;
+  color: var(--white);
+  font-size: 13px;
+}
+
+.map-title div:nth-child(2) {
+  color: #f0e8ff;
+}
+
+.map-footer {
+  left: 46px;
+  bottom: 8px;
+  color: var(--white);
+  font-size: 13px;
+}
+
+.right-pane {
+  overflow: hidden;
+}
+
+.title {
+  height: 28px;
+  color: #55fff8;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 28px;
+  white-space: nowrap;
+}
+
+.chart-copy {
+  position: absolute;
+  left: 54px;
+  right: 54px;
+  z-index: 3;
+  text-align: center;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  pointer-events: none;
+}
+
+.copy-top {
+  top: 38px;
+}
+
+.copy-bottom {
+  top: 492px;
+  text-align: left;
+}
+
+.gold {
+  color: var(--gold);
+}
+
+#lineChart {
+  position: absolute;
+  left: 54px;
+  top: 80px;
+  width: 1120px;
+  height: 352px;
+}
+
+#diffChart {
+  position: absolute;
+  left: 54px;
+  top: 492px;
+  width: 1120px;
+  height: 400px;
+}
+
+.legend {
+  position: absolute;
+  top: 128px;
+  right: 172px;
+  z-index: 3;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+.summary {
+  position: absolute;
+  left: 84px;
+  z-index: 4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 31px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.summary.green {
+  top: 520px;
+}
+
+.summary.red {
+  bottom: 78px;
+}
+
+.verdict {
+  position: absolute;
+  right: 58px;
+  bottom: 184px;
+  z-index: 5;
+  width: 290px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  text-align: center;
+}
+
+.verdict-main {
+  min-height: 39px;
+  display: grid;
+  place-items: center;
+  background: #09028b;
+  color: var(--green);
+  font-size: 30px;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.verdict-sub {
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+  background: #008300;
+  color: #ffff45;
+  font-size: 30px;
+  line-height: 1;
+  padding: 2px 8px;
+}
+
+.axis-note {
+  position: absolute;
+  right: 80px;
+  bottom: 12px;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}

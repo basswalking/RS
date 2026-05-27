@@ -1,0 +1,294 @@
+:root {
+  --bg: #000;
+  --white: #f2f2f2;
+  --red: #ff1818;
+  --green: #00ff20;
+  --blue: #001fff;
+  --gold: #ffc04d;
+  --cyan: #5fffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--white);
+  font-family: "Courier New", Courier, monospace;
+}
+
+.app {
+  width: 1920px;
+  height: 944px;
+  display: grid;
+  grid-template-columns: 640px 1fr;
+  border: 2px solid var(--white);
+  background: #000;
+  transform-origin: top left;
+}
+
+.left {
+  display: grid;
+  grid-template-rows: 482px 1fr;
+  border-right: 2px solid var(--white);
+}
+
+.source-wrap,
+.map-wrap,
+.right {
+  position: relative;
+  min-height: 0;
+  background: #000;
+}
+
+.source-wrap {
+  border-bottom: 2px solid var(--gold);
+}
+
+canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+#sourceCanvas,
+#mapCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.hud,
+.map-title,
+.map-footer {
+  position: absolute;
+  z-index: 3;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-shadow: 1px 1px #000;
+  pointer-events: none;
+}
+
+.tl {
+  top: 4px;
+  left: 10px;
+}
+
+.tr {
+  top: 4px;
+  right: 18px;
+}
+
+.bl {
+  left: 10px;
+  bottom: 6px;
+}
+
+.file-btn {
+  position: absolute;
+  left: 264px;
+  bottom: 4px;
+  z-index: 4;
+  width: 250px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--red);
+  border: 1px solid #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.map-wrap {
+  padding: 8px 18px 8px 20px;
+}
+
+.map-title {
+  top: 8px;
+  left: 46px;
+  color: #fff;
+}
+
+.map-footer {
+  left: 46px;
+  bottom: 10px;
+  color: #fff;
+}
+
+.title {
+  height: 28px;
+  line-height: 28px;
+  color: var(--cyan);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.copy {
+  position: absolute;
+  left: 80px;
+  right: 80px;
+  z-index: 3;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  pointer-events: none;
+}
+
+.top-copy {
+  top: 38px;
+}
+
+.diff-copy {
+  top: 492px;
+  text-align: left;
+}
+
+.gold {
+  color: var(--gold);
+}
+
+#lineChart {
+  position: absolute;
+  left: 54px;
+  top: 80px;
+  width: 1120px;
+  height: 360px;
+}
+
+#diffChart {
+  position: absolute;
+  left: 54px;
+  top: 520px;
+  width: 1120px;
+  height: 400px;
+}
+
+.legend {
+  position: absolute;
+  top: 126px;
+  right: 176px;
+  z-index: 3;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+.summary {
+  position: absolute;
+  left: 84px;
+  z-index: 4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 31px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.summary.green {
+  top: 548px;
+}
+
+.summary.red {
+  bottom: 58px;
+}
+
+.verdict {
+  position: absolute;
+  right: 58px;
+  bottom: 184px;
+  z-index: 5;
+  width: 300px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  text-align: center;
+}
+
+.verdict-main,
+.verdict-sub {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 3px 8px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.verdict-main {
+  background: #09028b;
+  color: var(--green);
+}
+
+.verdict-sub {
+  margin-top: 1px;
+  background: #008300;
+  color: #ffff45;
+}
+
+.axis-note {
+  position: absolute;
+  right: 82px;
+  bottom: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.table-panel {
+  position: fixed;
+  right: 14px;
+  top: 14px;
+  z-index: 20;
+  width: 530px;
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+  display: none;
+  background: rgba(0, 0, 0, 0.88);
+  border: 1px solid #555;
+  font: 12px Arial, sans-serif;
+}
+
+.table-panel.visible {
+  display: block;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #333;
+  text-align: right;
+}
+
+th {
+  color: var(--cyan);
+}

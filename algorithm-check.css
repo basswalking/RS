@@ -1,0 +1,166 @@
+:root {
+  color-scheme: dark;
+  --bg: #050505;
+  --panel: #121212;
+  --line: #2f2f2f;
+  --text: #f2f2f2;
+  --muted: #a8a8a8;
+  --green: #00ff37;
+  --red: #ff3030;
+  --cyan: #6fffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+h2 {
+  font-size: 16px;
+  color: var(--cyan);
+  margin-bottom: 8px;
+}
+
+.file {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-width: 160px;
+  height: 36px;
+  border: 1px solid #666;
+  background: #1e1e1e;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 680px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.preview,
+.targets,
+.results {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 12px;
+}
+
+canvas {
+  width: 640px;
+  height: 480px;
+  display: block;
+  background: #000;
+  image-rendering: pixelated;
+}
+
+.meta {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+}
+
+p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 5px 7px;
+  text-align: right;
+}
+
+th {
+  color: var(--cyan);
+}
+
+input.value {
+  width: 80px;
+  padding: 3px 5px;
+  border: 1px solid #555;
+  background: #080808;
+  color: var(--text);
+  font: inherit;
+  text-align: right;
+}
+
+.results {
+  margin-top: 16px;
+}
+
+.mode {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.mode:first-child {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+
+.mode h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.score {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}

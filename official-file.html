@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Official ON-OFF File Analyzer</title>
+    <link rel="stylesheet" href="./official-file.css">
+  </head>
+  <body>
+    <main id="appFrame" class="app">
+      <section class="left">
+        <div class="source-wrap">
+          <canvas id="sourceCanvas" width="640" height="480"></canvas>
+          <div class="hud tl">average pixel value = <span id="avgPixel">0.0</span></div>
+          <div class="hud tr">frame number = <span id="frameNumber">0</span></div>
+          <div class="hud bl">
+            <div>video frame width = 640</div>
+            <div>video frame height = 480</div>
+          </div>
+          <label class="file-btn">
+            <input id="fileInput" type="file" accept="image/*">
+            choose image file
+          </label>
+        </div>
+
+        <div class="map-wrap">
+          <canvas id="mapCanvas" width="640" height="430"></canvas>
+          <div class="map-title">
+            <div>number of receptive fields = <span id="rfTotal">285200</span></div>
+            <div>ON output is in red, OFF output in blue, for receptive field (RF) radius of <span id="currentRadius">2</span> pixel</div>
+          </div>
+          <div class="map-footer">
+            ave ON contrast = <span id="selectedOn">0.0</span>
+            (<span id="selectedOnCount">0</span> ON RFs), ave OFF contrast =
+            <span id="selectedOff">0.0</span>
+            (<span id="selectedOffCount">0</span> OFF RFs)
+          </div>
+        </div>
+      </section>
+
+      <section class="right">
+        <header class="title">realtime ON-OFF analysis of the visual world, F. Schaeffel, March 19, 2016</header>
+        <div class="copy top-copy">
+          <div>sum of differences between RF center and the eight peripheral sampling points, separately for ON and OFF</div>
+          <div class="gold">use horizontal arrow keys to choose the RF radius for calculating the realtime ON/OFF image (see bottom left)</div>
+        </div>
+        <canvas id="lineChart" width="1120" height="360"></canvas>
+        <div class="legend">
+          <div class="green">responses of ON RFs</div>
+          <div class="red">responses of OFF RFs</div>
+        </div>
+
+        <div class="copy diff-copy">difference between the summed ON and OFF output at different spatial frequencies</div>
+        <canvas id="diffChart" width="1120" height="420"></canvas>
+        <div class="summary green">sum of all averaged ON responses = <span id="sumOn">0.0</span></div>
+        <div class="summary red">sum of all averaged OFF responses = <span id="sumOff">0.0</span></div>
+        <div class="verdict">
+          <div id="verdictMain" class="verdict-main">waiting for image</div>
+          <div id="verdictSub" class="verdict-sub">file analyzer</div>
+        </div>
+        <div class="axis-note">
+          <div>receptive field radius in pixel</div>
+          <div>cyc/deg for 16 mm lens</div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="table-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>r</th>
+            <th>cyc/deg</th>
+            <th>ON avg</th>
+            <th>ON RFs</th>
+            <th>OFF avg</th>
+            <th>OFF RFs</th>
+            <th>ON-OFF</th>
+          </tr>
+        </thead>
+        <tbody id="statsRows"></tbody>
+      </table>
+    </aside>
+
+    <script src="./official-file.js"></script>
+  </body>
+</html>

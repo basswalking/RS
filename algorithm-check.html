@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ON-OFF Algorithm Check</title>
+    <link rel="stylesheet" href="./algorithm-check.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>ON-OFF algorithm check</h1>
+        <label class="file">
+          <input id="fileInput" type="file" accept="image/*">
+          Choose image
+        </label>
+      </header>
+
+      <section class="workspace">
+        <div class="preview">
+          <canvas id="canvas" width="640" height="480"></canvas>
+          <div class="meta">
+            <span>frame: 640 x 480</span>
+            <span>avg grid: <strong id="avgGrid">0.0</strong></span>
+            <span>avg all: <strong id="avgAll">0.0</strong></span>
+          </div>
+        </div>
+
+        <div class="targets">
+          <h2>Official values from screenshot</h2>
+          <p>Optional: fill values copied from the official program. Leave blanks unknown.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>r</th>
+                <th>ON</th>
+                <th>OFF</th>
+              </tr>
+            </thead>
+            <tbody id="targetRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="results">
+        <h2>Mode comparison</h2>
+        <div id="results"></div>
+      </section>
+    </main>
+
+    <script src="./algorithm-check.js"></script>
+  </body>
+</html>
