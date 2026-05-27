@@ -2,6 +2,7 @@ param(
   [string]$DeviceName = "",
   [string]$VideoSize = "640x480",
   [string]$InputPixelFormat = "gray",
+  [string]$InputCodec = "",
   [string]$OutputDir = "..\captures",
   [string]$FFmpegPath = "ffmpeg",
   [switch]$ListDevices,
@@ -59,16 +60,30 @@ if (Test-Path $pngPath) {
   Remove-Item -LiteralPath $pngPath -Force
 }
 
-& $ffmpeg `
-  -hide_banner `
-  -f dshow `
-  -video_size $VideoSize `
-  -pixel_format $InputPixelFormat `
-  -i "video=$DeviceName" `
-  -frames:v 1 `
-  -f rawvideo `
-  -pix_fmt gray `
+$captureArgs = @(
+  "-hide_banner",
+  "-rtbufsize", "100M",
+  "-analyzeduration", "100M",
+  "-probesize", "100M",
+  "-f", "dshow",
+  "-video_size", $VideoSize
+)
+
+if (-not [string]::IsNullOrWhiteSpace($InputCodec)) {
+  $captureArgs += @("-vcodec", $InputCodec)
+} else {
+  $captureArgs += @("-pixel_format", $InputPixelFormat)
+}
+
+$captureArgs += @(
+  "-i", "video=$DeviceName",
+  "-frames:v", "1",
+  "-f", "rawvideo",
+  "-pix_fmt", "gray",
   $rawPath
+)
+
+& $ffmpeg @captureArgs
 
 if ($LASTEXITCODE -ne 0) {
   throw "FFmpeg capture failed. Run this script again with -ListOptions and check whether the camera exposes $VideoSize gray/Y800."

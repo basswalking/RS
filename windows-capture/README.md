@@ -44,6 +44,14 @@ If the camera does not expose `gray` / `Y800`, use the closest uncompressed form
 
 This still writes an 8-bit gray raw file for the analyzer; FFmpeg extracts the luminance channel during conversion.
 
+If the official program is configured to `MJPG (640x480)`, match that compressed camera path instead:
+
+```powershell
+.\capture-y800.ps1 -DeviceName "HP True Vision FHD Camera" -InputCodec mjpeg
+```
+
+This decodes the MJPEG frame and then writes the same 640x480 8-bit gray raw file for the analyzer.
+
 Outputs are written to `captures\` by default:
 
 ```text
