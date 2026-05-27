@@ -2,7 +2,7 @@ param(
   [string]$TitleRegex = "ON-OFF|ON OFF|Schaeffel",
   [string]$OutputDir = ".\captures\official-window",
   [int]$CropX = 0,
-  [int]$CropY = 0,
+  [int]$CropY = 25,
   [int]$CropWidth = 640,
   [int]$CropHeight = 480
 )
@@ -35,6 +35,12 @@ public static class NativeWindowCapture {
 
   [DllImport("user32.dll")]
   public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
+
+  [DllImport("user32.dll")]
+  public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+  [DllImport("user32.dll")]
+  public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 }
 "@
 
@@ -75,6 +81,10 @@ if (-not $process) {
   throw "No visible window matched TitleRegex '$TitleRegex'. Open the official ON-OFF program first, then try again."
 }
 
+[NativeWindowCapture]::ShowWindow($process.MainWindowHandle, 9) | Out-Null
+[NativeWindowCapture]::SetForegroundWindow($process.MainWindowHandle) | Out-Null
+Start-Sleep -Milliseconds 500
+
 $rect = New-Object NativeWindowCapture+RECT
 if (-not [NativeWindowCapture]::GetClientRect($process.MainWindowHandle, [ref]$rect)) {
   throw "GetClientRect failed for window '$($process.MainWindowTitle)'."
@@ -100,6 +110,9 @@ $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $clientPng = Join-Path $resolvedOutputDir "official-client-$stamp.png"
 $inputPng = Join-Path $resolvedOutputDir "official-input-640x480-$stamp.png"
 $inputRaw = Join-Path $resolvedOutputDir "official-input-640x480-$stamp.raw"
+$latestClientPng = Join-Path $resolvedOutputDir "official-client-latest.png"
+$latestInputPng = Join-Path $resolvedOutputDir "official-input-640x480-latest.png"
+$latestInputRaw = Join-Path $resolvedOutputDir "official-input-640x480-latest.raw"
 
 $clientBitmap = New-Object System.Drawing.Bitmap $clientWidth, $clientHeight
 $graphics = [System.Drawing.Graphics]::FromImage($clientBitmap)
@@ -115,8 +128,14 @@ Save-GrayscaleRaw -Bitmap $inputBitmap -Path $inputRaw
 $inputBitmap.Dispose()
 $clientBitmap.Dispose()
 
+Copy-Item -LiteralPath $clientPng -Destination $latestClientPng -Force
+Copy-Item -LiteralPath $inputPng -Destination $latestInputPng -Force
+Copy-Item -LiteralPath $inputRaw -Destination $latestInputRaw -Force
+
 Write-Host "Matched window: $($process.MainWindowTitle)"
 Write-Host "Client capture: $clientPng"
 Write-Host "Input crop PNG: $inputPng"
 Write-Host "Input crop RAW: $inputRaw"
+Write-Host "Latest input PNG: $latestInputPng"
+Write-Host "Latest input RAW: $latestInputRaw"
 Write-Host "Raw byte count: $((Get-Item -LiteralPath $inputRaw).Length)"
