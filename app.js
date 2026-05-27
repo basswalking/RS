@@ -9,12 +9,6 @@ const DESIGN_WIDTH = 1920;
 const DESIGN_HEIGHT = 944;
 const DIAGONAL_SCALE = 0.707;
 const SPATIAL_FREQUENCIES = [22.4, 11.2, 7.47, 5.6, 4.48, 3.73, 3.2, 2.8, 2.49, 2.24];
-const OFFICIAL_DITHER_MATRIX = [
-  0, 8, 2, 10,
-  12, 4, 14, 6,
-  3, 11, 1, 9,
-  15, 7, 13, 5,
-];
 
 const cameraVideo = document.getElementById("cameraVideo");
 const sourceCanvas = document.getElementById("sourceCanvas");
@@ -42,19 +36,16 @@ const els = {
   verdictMain: document.getElementById("verdictMain"),
   verdictSub: document.getElementById("verdictSub"),
   cameraButton: document.getElementById("cameraButton"),
-  simulationButton: document.getElementById("simulationButton"),
 };
 
 let selectedRadius = 2;
 let frameNumber = 0;
-let baseGray = new Uint8ClampedArray(FRAME_WIDTH * FRAME_HEIGHT);
 let gray = new Uint8ClampedArray(FRAME_WIDTH * FRAME_HEIGHT);
 let responseBuffer = new Int32Array(FRAME_WIDTH * FRAME_HEIGHT);
 let stats = createEmptyStats();
 let hasImage = false;
 let cameraStream = null;
 let cameraFrameRequest = 0;
-let officialDisplaySimulation = false;
 
 function createEmptyStats() {
   return Array.from({ length: MAX_RADIUS }, (_, index) => ({
@@ -74,19 +65,11 @@ function setup() {
   els.rfCount.textContent = (FRAME_WIDTH - 2 * ANALYSIS_MARGIN) * (FRAME_HEIGHT - 2 * ANALYSIS_MARGIN);
   document.getElementById("fileInput").addEventListener("change", handleFile);
   els.cameraButton.addEventListener("click", toggleCamera);
-  els.simulationButton.addEventListener("click", toggleOfficialDisplaySimulation);
   window.addEventListener("keydown", handleKey);
   window.addEventListener("resize", scaleApp);
   drawPlaceholder();
   drawResponseMap();
   drawCharts();
-}
-
-function toggleOfficialDisplaySimulation() {
-  officialDisplaySimulation = !officialDisplaySimulation;
-  els.simulationButton.textContent = officialDisplaySimulation ? "sim on" : "sim off";
-  els.simulationButton.classList.toggle("active", officialDisplaySimulation);
-  if (hasImage) analyzeCurrentGray();
 }
 
 function scaleApp() {
@@ -270,34 +253,15 @@ function drawPlaceholder() {
 function analyzeFrame() {
   const imageData = sourceCtx.getImageData(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
   const data = imageData.data;
-
-  for (let i = 0, p = 0; i < data.length; i += 4, p += 1) {
-    const value = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
-    baseGray[p] = value;
-  }
-
-  analyzeCurrentGray();
-}
-
-function analyzeCurrentGray() {
-  const imageData = sourceCtx.createImageData(FRAME_WIDTH, FRAME_HEIGHT);
-  const data = imageData.data;
   let total = 0;
   let averageSampleCount = 0;
 
-  for (let y = 0; y < FRAME_HEIGHT; y += 1) {
-    for (let x = 0; x < FRAME_WIDTH; x += 1) {
-      const p = y * FRAME_WIDTH + x;
-      const value = officialDisplaySimulation
-        ? officialDisplayValue(baseGray[p], x, y)
-        : baseGray[p];
-      const i = p * 4;
-      gray[p] = value;
-      data[i] = value;
-      data[i + 1] = value;
-      data[i + 2] = value;
-      data[i + 3] = 255;
-    }
+  for (let i = 0, p = 0; i < data.length; i += 4, p += 1) {
+    const value = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+    gray[p] = value;
+    data[i] = value;
+    data[i + 1] = value;
+    data[i + 2] = value;
   }
 
   for (let y = AVERAGE_MARGIN; y < FRAME_HEIGHT - AVERAGE_MARGIN; y += AVERAGE_STEP) {
@@ -318,15 +282,6 @@ function analyzeCurrentGray() {
 
   drawResponseMap();
   drawCharts();
-}
-
-function officialDisplayValue(value, x, y) {
-  const quantized = Math.round(value / 4) * 4;
-  const dither = (OFFICIAL_DITHER_MATRIX[(y & 3) * 4 + (x & 3)] - 7.5) * 1.8;
-  const dotMask = (x & 1) === 0 && (y & 1) === 0
-    ? -28
-    : ((x & 1) === 0 || (y & 1) === 0 ? -5 : 9);
-  return Math.round(clamp(quantized + dither + dotMask, 0, 255));
 }
 
 function analyzeRadius(radius) {
