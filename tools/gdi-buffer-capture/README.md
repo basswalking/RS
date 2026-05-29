@@ -12,11 +12,13 @@ GDI32!SetDIBitsToDevice
 When either function draws a bitmap near `640x480`, the hook saves:
 
 ```text
-captures\gdi-buffer\*.raw
-captures\gdi-buffer\*.json
+C:\tmp\onoff-gdi-buffer\*.raw
+C:\tmp\onoff-gdi-buffer\*.json
 ```
 
 The `.raw` file is the exact `lpBits` memory passed to GDI. The `.json` file records width, height, bit depth, compression, stride, and call site.
+
+For the official ON-OFF program, the captured input frames have so far appeared as `640x480`, `8bpp`, `BI_RGB`, `307200` byte DIBs. A positive DIB height means the raw rows are bottom-up; flip vertically when converting the buffer for normal viewing.
 
 ## Requirements
 

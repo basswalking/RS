@@ -4,7 +4,7 @@ const TARGET_WIDTH = 640;
 const TARGET_HEIGHT = 480;
 const SIZE_TOLERANCE = 8;
 const MAX_CAPTURES = 80;
-const OUTPUT_DIR = "C:\\睿视\\项目\\ON-OFF\\captures\\gdi-buffer";
+const OUTPUT_DIR = "C:\\tmp\\onoff-gdi-buffer";
 
 let captureCount = 0;
 
@@ -129,8 +129,7 @@ function captureBits(apiName, lpBits, lpbmi, srcWidth, srcHeight, destWidth, des
 }
 
 function hookStretchDIBits() {
-  const address = Module.findExportByName("gdi32.dll", "StretchDIBits");
-  if (!address) return;
+  const address = Module.getGlobalExportByName("StretchDIBits");
 
   Interceptor.attach(address, {
     onEnter(args) {
@@ -146,8 +145,7 @@ function hookStretchDIBits() {
 }
 
 function hookSetDIBitsToDevice() {
-  const address = Module.findExportByName("gdi32.dll", "SetDIBitsToDevice");
-  if (!address) return;
+  const address = Module.getGlobalExportByName("SetDIBitsToDevice");
 
   Interceptor.attach(address, {
     onEnter(args) {

@@ -25,7 +25,30 @@
           <button id="cameraButton" class="camera-button" type="button">start camera</button>
         </div>
 
-        <div class="map-panel">
+        <div class="processed-panel left-processed">
+          <div class="processed-title">polarity inversion output</div>
+          <canvas id="processedCanvas" width="640" height="480"></canvas>
+          <div class="processed-readout">
+            <div>state = <span id="polarityState">waiting</span></div>
+            <div>OFF hold = <span id="offHoldTime">0.0</span>s</div>
+            <div>processed ON = <span id="processedOnValue">0.0</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="right-pane">
+        <header class="title">realtime ON-OFF analysis of the visual world, F. Schaeffel, March 19, 2016</header>
+        <div class="chart-copy copy-top">
+          <div>sum of differences between RF center and the eight peripheral sampling points, separately for ON and OFF</div>
+          <div class="gold">use horizontal arrow keys to choose the RF radius for calculating the realtime ON/OFF image (see bottom left)</div>
+        </div>
+        <canvas id="lineChart" width="800" height="390"></canvas>
+        <div class="legend">
+          <div class="green">responses of ON RFs</div>
+          <div class="red">responses of OFF RFs</div>
+        </div>
+
+        <div class="map-panel side-map">
           <canvas id="responseCanvas" width="640" height="470"></canvas>
           <div class="map-title">
             <div>number of receptive fields = <span id="rfCount">285200</span></div>
@@ -38,22 +61,9 @@
             (<span id="currentOffCount">0</span> OFF RFs)
           </div>
         </div>
-      </section>
-
-      <section class="right-pane">
-        <header class="title">realtime ON-OFF analysis of the visual world, F. Schaeffel, March 19, 2016</header>
-        <div class="chart-copy copy-top">
-          <div>sum of differences between RF center and the eight peripheral sampling points, separately for ON and OFF</div>
-          <div class="gold">use horizontal arrow keys to choose the RF radius for calculating the realtime ON/OFF image (see bottom left)</div>
-        </div>
-        <canvas id="lineChart" width="1120" height="390"></canvas>
-        <div class="legend">
-          <div class="green">responses of ON RFs</div>
-          <div class="red">responses of OFF RFs</div>
-        </div>
 
         <div class="chart-copy copy-bottom">difference between the summed ON and OFF output at different spatial frequencies</div>
-        <canvas id="diffChart" width="1120" height="430"></canvas>
+        <canvas id="diffChart" width="800" height="430"></canvas>
         <div class="summary green">sum of all averaged ON responses = <span id="avgOnTotal">0.0</span></div>
         <div class="summary red">sum of all averaged OFF responses = <span id="avgOffTotal">0.0</span></div>
         <div class="verdict">

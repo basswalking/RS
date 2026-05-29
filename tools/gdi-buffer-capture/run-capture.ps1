@@ -1,6 +1,6 @@
 param(
   [string]$ProcessNameRegex = "ON OFF analysis visual world",
-  [string]$OutputDir = ".\captures\gdi-buffer"
+  [string]$OutputDir = "C:\tmp\onoff-gdi-buffer"
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,13 +22,12 @@ if (-not $frida) {
 
 $process = Get-Process |
   Where-Object {
-    $_.MainWindowHandle -ne 0 -and
     ($_.ProcessName -match $ProcessNameRegex -or $_.MainWindowTitle -match $ProcessNameRegex)
   } |
   Select-Object -First 1
 
 if (-not $process) {
-  throw "No visible process matched '$ProcessNameRegex'. Start the official ON-OFF program first."
+  throw "No process matched '$ProcessNameRegex'. Start the official ON-OFF program first."
 }
 
 $resolvedOutputDir = Resolve-RepoPath $OutputDir

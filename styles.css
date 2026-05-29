@@ -43,6 +43,7 @@ body {
 
 .video-panel,
 .map-panel,
+.processed-panel,
 .right-pane {
   position: relative;
   background: #000;
@@ -62,8 +63,7 @@ canvas {
   display: none;
 }
 
-#sourceCanvas,
-#responseCanvas {
+#sourceCanvas {
   width: 100%;
   height: 100%;
 }
@@ -172,7 +172,7 @@ canvas {
 .chart-copy {
   position: absolute;
   left: 54px;
-  right: 54px;
+  width: 800px;
   z-index: 3;
   text-align: center;
   color: var(--white);
@@ -199,7 +199,7 @@ canvas {
   position: absolute;
   left: 54px;
   top: 80px;
-  width: 1120px;
+  width: 800px;
   height: 352px;
 }
 
@@ -207,18 +207,91 @@ canvas {
   position: absolute;
   left: 54px;
   top: 492px;
-  width: 1120px;
+  width: 800px;
   height: 400px;
 }
 
 .legend {
   position: absolute;
   top: 128px;
-  right: 172px;
+  left: 654px;
   z-index: 3;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.55;
+}
+
+.left-processed {
+  border-top: 2px solid #222;
+  overflow: hidden;
+}
+
+.processed-panel {
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.processed-title {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  color: #55fff8;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+
+#processedCanvas {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.processed-readout {
+  position: absolute;
+  left: 46px;
+  bottom: 8px;
+  z-index: 3;
+  padding: 6px 8px;
+  border: 1px solid #333;
+  color: var(--gold);
+  line-height: 1.45;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+}
+
+.side-map {
+  position: absolute;
+  top: 108px;
+  right: 28px;
+  z-index: 4;
+  width: 360px;
+  height: 300px;
+  padding: 0;
+  border: 2px solid var(--white);
+}
+
+.side-map #responseCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.side-map .map-title {
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  font-size: 10px;
+}
+
+.side-map .map-footer {
+  left: 10px;
+  right: 10px;
+  bottom: 6px;
+  font-size: 10px;
 }
 
 .green {
@@ -232,6 +305,7 @@ canvas {
 .summary {
   position: absolute;
   left: 84px;
+  width: 760px;
   z-index: 4;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 31px;
@@ -249,8 +323,8 @@ canvas {
 
 .verdict {
   position: absolute;
-  right: 58px;
-  bottom: 184px;
+  right: 42px;
+  bottom: 188px;
   z-index: 5;
   width: 290px;
   font-family: Arial, Helvetica, sans-serif;
@@ -283,7 +357,7 @@ canvas {
 
 .axis-note {
   position: absolute;
-  right: 80px;
+  right: 74px;
   bottom: 12px;
   color: var(--white);
   font-size: 13px;

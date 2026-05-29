@@ -9,6 +9,13 @@ const DESIGN_WIDTH = 1920;
 const DESIGN_HEIGHT = 944;
 const DIAGONAL_SCALE = 0.707;
 const SPATIAL_FREQUENCIES = [22.4, 11.2, 7.47, 5.6, 4.48, 3.73, 3.2, 2.8, 2.49, 2.24];
+const OFF_POLARITY_TRIGGER_MS = 3000;
+const PROCESSED_ON_MIN = 1.9;
+const PROCESSED_ON_MAX = 2.1;
+const PROCESSED_ON_TARGET = 2;
+const MIN_POLARITY_GAIN = 0;
+const MAX_POLARITY_GAIN = 2;
+const POLARITY_BASE_BLUR_RADIUS = 3;
 
 const cameraVideo = document.getElementById("cameraVideo");
 const sourceCanvas = document.getElementById("sourceCanvas");
@@ -19,6 +26,8 @@ const lineChart = document.getElementById("lineChart");
 const lineCtx = lineChart.getContext("2d");
 const diffChart = document.getElementById("diffChart");
 const diffCtx = diffChart.getContext("2d");
+const processedCanvas = document.getElementById("processedCanvas");
+const processedCtx = processedCanvas.getContext("2d", { willReadFrequently: true });
 
 const els = {
   avgPixel: document.getElementById("avgPixel"),
@@ -35,6 +44,9 @@ const els = {
   avgOffTotal: document.getElementById("avgOffTotal"),
   verdictMain: document.getElementById("verdictMain"),
   verdictSub: document.getElementById("verdictSub"),
+  polarityState: document.getElementById("polarityState"),
+  offHoldTime: document.getElementById("offHoldTime"),
+  processedOnValue: document.getElementById("processedOnValue"),
   cameraButton: document.getElementById("cameraButton"),
 };
 
@@ -46,6 +58,10 @@ let stats = createEmptyStats();
 let hasImage = false;
 let cameraStream = null;
 let cameraFrameRequest = 0;
+let offStartTime = 0;
+let polarityInversionActive = false;
+let processedOnValue = 0;
+let polarityBase = new Float32Array(FRAME_WIDTH * FRAME_HEIGHT);
 
 function createEmptyStats() {
   return Array.from({ length: MAX_RADIUS }, (_, index) => ({
@@ -68,6 +84,7 @@ function setup() {
   window.addEventListener("keydown", handleKey);
   window.addEventListener("resize", scaleApp);
   drawPlaceholder();
+  drawProcessedPlaceholder();
   drawResponseMap();
   drawCharts();
 }
@@ -282,6 +299,7 @@ function analyzeFrame() {
 
   drawResponseMap();
   drawCharts();
+  updatePolarityInversion(curveTotals(stats));
 }
 
 function analyzeRadius(radius) {
@@ -518,9 +536,7 @@ function drawXAxisLabels(ctx, plot) {
 }
 
 function updateSummary() {
-  const onTotal = officialCurveAverage(stats.map((item) => item.onAverage));
-  const offTotal = officialCurveAverage(stats.map((item) => item.offAverage));
-  const diff = onTotal - offTotal;
+  const { onTotal, offTotal, diff } = curveTotals(stats);
   els.avgOnTotal.textContent = onTotal.toFixed(1);
   els.avgOffTotal.textContent = offTotal.toFixed(1);
 
@@ -535,6 +551,142 @@ function updateSummary() {
   els.verdictMain.style.color = diff >= 0 ? "#00ff21" : "#ff1515";
   els.verdictSub.textContent = diff >= 0 ? "no myopia" : "stimulates myopia";
   els.verdictSub.style.background = diff >= 0 ? "#008300" : "#b60000";
+}
+
+function curveTotals(sourceStats) {
+  const onTotal = officialCurveAverage(sourceStats.map((item) => item.onAverage));
+  const offTotal = officialCurveAverage(sourceStats.map((item) => item.offAverage));
+  return {
+    onTotal,
+    offTotal,
+    diff: onTotal - offTotal,
+  };
+}
+
+function updatePolarityInversion({ diff, offTotal }) {
+  const now = performance.now();
+  if (!hasImage || diff >= 0) {
+    offStartTime = 0;
+    polarityInversionActive = false;
+    processedOnValue = 0;
+    updatePolarityReadout(0);
+    drawProcessedPlaceholder();
+    return;
+  }
+
+  if (!offStartTime) offStartTime = now;
+  const holdMs = now - offStartTime;
+  polarityInversionActive = holdMs >= OFF_POLARITY_TRIGGER_MS;
+
+  if (polarityInversionActive) {
+    drawPolarityInvertedFrame(offTotal);
+  } else {
+    drawProcessedWaiting(holdMs);
+  }
+
+  updatePolarityReadout(holdMs);
+}
+
+function updatePolarityReadout(holdMs) {
+  els.offHoldTime.textContent = (holdMs / 1000).toFixed(1);
+  els.processedOnValue.textContent = processedOnValue.toFixed(1);
+
+  if (!hasImage) {
+    els.polarityState.textContent = "waiting";
+    els.polarityState.style.color = "#ffc04d";
+    return;
+  }
+
+  if (polarityInversionActive) {
+    els.polarityState.textContent = "inverting";
+    els.polarityState.style.color = isProcessedOnInRange() ? "#00ff21" : "#ffc04d";
+    return;
+  }
+
+  els.polarityState.textContent = offStartTime ? "holding OFF" : "waiting";
+  els.polarityState.style.color = offStartTime ? "#ff1515" : "#ffc04d";
+}
+
+function drawPolarityInvertedFrame(offTotal) {
+  const gain = clamp(PROCESSED_ON_TARGET / Math.max(offTotal, 0.01), MIN_POLARITY_GAIN, MAX_POLARITY_GAIN);
+  processedOnValue = offTotal * gain;
+  buildBoxBlur(gray, polarityBase, FRAME_WIDTH, FRAME_HEIGHT, POLARITY_BASE_BLUR_RADIUS);
+
+  const imageData = processedCtx.createImageData(FRAME_WIDTH, FRAME_HEIGHT);
+  const data = imageData.data;
+  for (let p = 0, i = 0; p < gray.length; p += 1, i += 4) {
+    const detail = gray[p] - polarityBase[p];
+    const value = clamp(Math.round(polarityBase[p] - detail * gain), 0, 255);
+    data[i] = value;
+    data[i + 1] = value;
+    data[i + 2] = value;
+    data[i + 3] = 255;
+  }
+  processedCtx.putImageData(imageData, 0, 0);
+}
+
+function isProcessedOnInRange() {
+  return processedOnValue > PROCESSED_ON_MIN && processedOnValue < PROCESSED_ON_MAX;
+}
+
+function buildBoxBlur(source, target, width, height, radius) {
+  const temp = new Float32Array(source.length);
+  const windowSize = radius * 2 + 1;
+
+  for (let y = 0; y < height; y += 1) {
+    let sum = 0;
+    const row = y * width;
+    for (let x = -radius; x <= radius; x += 1) {
+      sum += source[row + clamp(x, 0, width - 1)];
+    }
+    for (let x = 0; x < width; x += 1) {
+      temp[row + x] = sum / windowSize;
+      sum -= source[row + clamp(x - radius, 0, width - 1)];
+      sum += source[row + clamp(x + radius + 1, 0, width - 1)];
+    }
+  }
+
+  for (let x = 0; x < width; x += 1) {
+    let sum = 0;
+    for (let y = -radius; y <= radius; y += 1) {
+      sum += temp[clamp(y, 0, height - 1) * width + x];
+    }
+    for (let y = 0; y < height; y += 1) {
+      target[y * width + x] = sum / windowSize;
+      sum -= temp[clamp(y - radius, 0, height - 1) * width + x];
+      sum += temp[clamp(y + radius + 1, 0, height - 1) * width + x];
+    }
+  }
+}
+
+function drawProcessedWaiting(holdMs) {
+  processedOnValue = 0;
+  processedCtx.save();
+  processedCtx.fillStyle = "#000";
+  processedCtx.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+  processedCtx.fillStyle = "#ff1515";
+  processedCtx.font = "700 34px Courier New";
+  processedCtx.textAlign = "center";
+  processedCtx.fillText("OFF hold", FRAME_WIDTH / 2, 214);
+  processedCtx.fillStyle = "#ffc04d";
+  processedCtx.font = "700 28px Courier New";
+  processedCtx.fillText(`${(holdMs / 1000).toFixed(1)} / 3.0 s`, FRAME_WIDTH / 2, 260);
+  processedCtx.restore();
+}
+
+function drawProcessedPlaceholder() {
+  processedCtx.save();
+  processedCtx.fillStyle = "#050505";
+  processedCtx.fillRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+  processedCtx.strokeStyle = "#333";
+  processedCtx.lineWidth = 6;
+  processedCtx.strokeRect(18, 18, FRAME_WIDTH - 36, FRAME_HEIGHT - 36);
+  processedCtx.fillStyle = "#ffc04d";
+  processedCtx.font = "700 28px Courier New";
+  processedCtx.textAlign = "center";
+  processedCtx.fillText("waiting for OFF", FRAME_WIDTH / 2, 232);
+  processedCtx.fillText("3.0 seconds", FRAME_WIDTH / 2, 270);
+  processedCtx.restore();
 }
 
 function radiusX(plot, index) {
